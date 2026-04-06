@@ -1,0 +1,69 @@
+sources:
+  # === Fuente piloto (activa) ===
+  - id: memoria_lanzarote
+    name: "Memoria de Lanzarote"
+    base_url: "https://memoriadelanzarote.com/"
+    connector: "connectors.memoria_lanzarote.MemoriaLanzaroteConnector"
+    content_selectors:
+      - "article"
+      - ".entry-content"
+      - ".item-content"
+      - ".document-text"
+    discovery: "pagination"
+    island: "Lanzarote"
+    status: active
+    extra:
+      documents_url: "https://memoriadelanzarote.com/documentos"
+      items_per_page: 12
+
+  # === Fuentes pendientes ===
+
+  - id: izuran
+    name: "IZURAN - Diccionario Amazigh Insular"
+    base_url: "https://izuran.academiacanarialengua.org/"
+    connector: "connectors.izuran.IzuranConnector"
+    content_selectors: []
+    discovery: ""
+    island: null
+    status: pending
+    # TODO: Completar configuración cuando se implemente el conector
+
+  - id: museo_canario
+    name: "El Museo Canario"
+    base_url: "https://www.elmuseocanario.com/"
+    connector: "connectors.museo_canario.MuseoCanarioConnector"
+    content_selectors: []
+    discovery: ""
+    island: "Gran Canaria"
+    status: pending
+    # TODO: Completar configuración cuando se implemente el conector
+
+  - id: guanches
+    name: "Guanches.org"
+    base_url: "https://www.guanches.org/"
+    connector: "connectors.guanches.GuanchesConnector"
+    content_selectors: []
+    discovery: ""
+    island: null
+    status: pending
+    # TODO: Completar configuración cuando se implemente el conector
+
+  - id: bienmesabe
+    name: "BienMesabe.org"
+    base_url: "https://www.bienmesabe.org/"
+    connector: "connectors.bienmesabe.BienMesabeConnector"
+    content_selectors: []
+    discovery: ""
+    island: null
+    status: pending
+    # TODO: Completar configuración cuando se implemente el conector
+
+  - id: patriarca
+    name: "Patriarca ULPGC"
+    base_url: "https://patriarca.ulpgc.es/"
+    connector: "connectors.patriarca.PatriarcaConnector"
+    content_selectors: []
+    discovery: ""
+    island: null
+    status: pending
+    # TODO: Completar configuración cuando se implemente el conector

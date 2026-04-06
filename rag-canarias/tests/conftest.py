@@ -1,0 +1,1 @@
+"""Configuración compartida para tests."""
