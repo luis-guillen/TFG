@@ -1,0 +1,81 @@
+@model CrawlerWeb.Models.CrawlViewModel
+
+@{
+    ViewData["Title"] = "Web Crawler";
+}
+
+<h1 class="mb-4">Web Crawler</h1>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Configuración del crawling</h5>
+                <form asp-action="Index" method="post">
+                    <div class="mb-3">
+                        <label asp-for="Request.Url" class="form-label"></label>
+                        <input asp-for="Request.Url" class="form-control" placeholder="https://ejemplo.com" />
+                        <span asp-validation-for="Request.Url" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Request.MaxPages" class="form-label"></label>
+                        <input asp-for="Request.MaxPages" class="form-control" type="number" />
+                        <span asp-validation-for="Request.MaxPages" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Request.MaxDepth" class="form-label"></label>
+                        <input asp-for="Request.MaxDepth" class="form-control" type="number" />
+                        <span asp-validation-for="Request.MaxDepth" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Iniciar Crawling</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Result != null)
+    {
+        <div class="col-lg-6">
+            <div class="card border-success h-100">
+                <div class="card-body" style="overflow: hidden;">
+                    <h5 class="card-title">Resultado</h5>
+
+                    <dl class="row mb-3" style="font-size: 0.95rem;">
+                        <dt class="col-sm-6">Páginas visitadas</dt>
+                        <dd class="col-sm-6">@Model.Result.VisitedPages</dd>
+
+                        <dt class="col-sm-6">Archivos guardados</dt>
+                        <dd class="col-sm-6">@Model.Result.SavedFiles</dd>
+
+                        <dt class="col-sm-12">Carpeta de salida</dt>
+                        <dd class="col-sm-12" style="word-break: break-word; font-size: 0.8rem;">
+                            <code>@Model.Result.OutputFolder</code>
+                        </dd>
+                    </dl>
+
+                    @if (Model.Result.SavedFileNames.Any())
+                    {
+                        <h6 class="mt-3">Archivos generados:</h6>
+                        <div style="max-height: 180px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 4px; padding: 8px;">
+                            @foreach (var file in Model.Result.SavedFileNames)
+                            {
+                                <div style="font-size: 0.85rem; padding: 4px 0; border-bottom: 1px solid #f0f0f0; word-break: break-word;">@file</div>
+                            }
+                        </div>
+                    }
+
+                    @if (Model.Result.Errors.Any())
+                    {
+                        <h6 class="text-danger mt-3">Errores (@Model.Result.Errors.Count):</h6>
+                        <div style="max-height: 120px; overflow-y: auto; border: 1px solid #ffcdd2; border-radius: 4px; padding: 8px; background-color: #fff5f5;">
+                            @foreach (var error in Model.Result.Errors)
+                            {
+                                <div style="font-size: 0.8rem; padding: 4px 0; border-bottom: 1px solid #ffe0e0; color: #c62828; word-break: break-word;">@error</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
