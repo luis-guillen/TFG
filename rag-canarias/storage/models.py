@@ -107,6 +107,12 @@ class RawDocument:
     status_code: int
     fetched_at: datetime
     headers: dict[str, str]
+    # Nuevos campos de crawl4ai
+    markdown_raw: str | None = None
+    markdown_fit: str | None = None
+    links: dict | None = None
+    media: dict | None = None
+    extracted_content: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Serializa a diccionario."""

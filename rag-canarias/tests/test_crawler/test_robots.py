@@ -1,7 +1,7 @@
-"""Tests para crawler/robots.py."""
+"""Tests para crawler/robots.py (ahora usa urllib.request)."""
 
-import httpx
-import respx
+from unittest.mock import patch, MagicMock
+import urllib.error
 
 from config.settings import Settings
 from crawler.fetcher import Fetcher
@@ -21,43 +21,53 @@ def _make_fetcher() -> Fetcher:
 class TestRobotsChecker:
     """Tests para RobotsChecker."""
 
-    @respx.mock
-    def test_allowed_when_no_restrictions(self):
-        respx.get("https://example.com/robots.txt").mock(
-            return_value=httpx.Response(200, text="User-agent: *\nAllow: /\n")
-        )
+    @patch("urllib.request.urlopen")
+    def test_allowed_when_no_restrictions(self, mock_urlopen):
+        mock_response = MagicMock()
+        mock_response.status = 200
+        mock_response.read.return_value = b"User-agent: *\nAllow: /\n"
+        mock_response.__enter__.return_value = mock_response
+        mock_urlopen.return_value = mock_response
+
         with _make_fetcher() as fetcher:
             checker = RobotsChecker(fetcher)
             assert checker.is_allowed("https://example.com/documentos") is True
             assert checker.is_allowed("https://example.com/admin") is True
 
-    @respx.mock
-    def test_disallowed_path(self):
-        robots_txt = "User-agent: *\nDisallow: /admin/\n"
-        respx.get("https://example.com/robots.txt").mock(
-            return_value=httpx.Response(200, text=robots_txt)
-        )
+    @patch("urllib.request.urlopen")
+    def test_disallowed_path(self, mock_urlopen):
+        mock_response = MagicMock()
+        mock_response.status = 200
+        mock_response.read.return_value = b"User-agent: *\nDisallow: /admin/\n"
+        mock_response.__enter__.return_value = mock_response
+        mock_urlopen.return_value = mock_response
+
         with _make_fetcher() as fetcher:
             checker = RobotsChecker(fetcher)
             assert checker.is_allowed("https://example.com/admin/config") is False
             assert checker.is_allowed("https://example.com/documentos") is True
 
-    @respx.mock
-    def test_robots_not_found(self):
-        respx.get("https://example.com/robots.txt").mock(
-            return_value=httpx.Response(404)
+    @patch("urllib.request.urlopen")
+    def test_robots_not_found(self, mock_urlopen):
+        # 404 HTTP Error
+        mock_urlopen.side_effect = urllib.error.HTTPError(
+            "https://example.com/robots.txt", 404, "Not Found", {}, None
         )
+
         with _make_fetcher() as fetcher:
             checker = RobotsChecker(fetcher)
             assert checker.is_allowed("https://example.com/anything") is True
 
-    @respx.mock
-    def test_caching(self):
-        route = respx.get("https://example.com/robots.txt").mock(
-            return_value=httpx.Response(200, text="User-agent: *\nAllow: /\n")
-        )
+    @patch("urllib.request.urlopen")
+    def test_caching(self, mock_urlopen):
+        mock_response = MagicMock()
+        mock_response.status = 200
+        mock_response.read.return_value = b"User-agent: *\nAllow: /\n"
+        mock_response.__enter__.return_value = mock_response
+        mock_urlopen.return_value = mock_response
+
         with _make_fetcher() as fetcher:
             checker = RobotsChecker(fetcher)
             checker.is_allowed("https://example.com/page1")
             checker.is_allowed("https://example.com/page2")
-            assert route.call_count == 1
+            assert mock_urlopen.call_count == 1

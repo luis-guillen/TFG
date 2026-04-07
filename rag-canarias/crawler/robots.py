@@ -9,8 +9,10 @@ from __future__ import annotations
 import logging
 from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
+import urllib.request
+import urllib.error
 
-from crawler.fetcher import FetchError, Fetcher
+from crawler.fetcher import Fetcher
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +40,7 @@ class RobotsChecker:
         parsed = urlparse(url)
         domain = f"{parsed.scheme}://{parsed.netloc}"
         parser = self._get_robots_parser(domain)
-        return parser.can_fetch(self._fetcher._settings.user_agent, url)
+        return parser.can_fetch(self._fetcher.settings.user_agent, url)
 
     def _get_robots_parser(self, domain: str) -> RobotFileParser:
         """Obtiene el parser de robots.txt, descargándolo si es necesario.
@@ -57,18 +59,28 @@ class RobotsChecker:
         parser.set_url(robots_url)
 
         try:
-            doc = self._fetcher.fetch(robots_url)
-            if doc.status_code < 400:
-                parser.parse(doc.html.splitlines())
-            else:
-                parser.allow_all = True
-        except FetchError as e:
-            if e.status_code == 404:
+            req = urllib.request.Request(
+                robots_url,
+                headers={"User-Agent": self._fetcher.settings.user_agent}
+            )
+            with urllib.request.urlopen(req, timeout=10) as response:
+                if response.status < 400:
+                    text = response.read().decode('utf-8')
+                    parser.parse(text.splitlines())
+                else:
+                    parser.allow_all = True
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
                 logger.debug("robots.txt no encontrado en %s, permitiendo todo", domain)
             else:
                 logger.warning(
-                    "No se pudo descargar robots.txt de %s: %s", domain, e
+                    "Error HTTP al descargar robots.txt de %s: %s", domain, e
                 )
+            parser.allow_all = True
+        except Exception as e:
+            logger.warning(
+                "No se pudo descargar robots.txt de %s: %s", domain, e
+            )
             parser.allow_all = True
 
         self._cache[domain] = parser
