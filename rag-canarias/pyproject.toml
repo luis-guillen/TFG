@@ -11,19 +11,39 @@ requires-python = ">=3.11"
 license = "MIT"
 
 dependencies = [
+    # Fetching / crawling
     "crawl4ai>=0.8.6",
     "beautifulsoup4>=4.12",
     "lxml>=5.0",
+    "trafilatura>=1.12",    # extracción limpia de texto desde HTML (fallback a crawl4ai)
+    "nest-asyncio>=1.6",
+    # Config
     "pyyaml>=6.0",
     "python-dotenv>=1.0",
-    "nest-asyncio>=1.6",
+    # API
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "httpx>=0.28",          # cliente HTTP async (llamadas a Ollama)
+    # Storage
+    "sqlmodel>=0.0.22",
+    # Indexing — Phase 1
+    "qdrant-client>=1.12",
+    "sentence-transformers>=3.3",
+    "langchain-text-splitters>=0.3",
+    "rank-bm25>=0.2",
 ]
 
 [project.optional-dependencies]
+eval = [
+    "ragas>=0.2",
+    "datasets>=2.0",
+]
 dev = [
     "pytest>=8.0",
+    "pytest-asyncio>=0.24",
     "pytest-cov>=5.0",
     "respx>=0.21",
+    "httpx>=0.28",
 ]
 
 [tool.setuptools.packages.find]

@@ -78,6 +78,33 @@ class Settings:
         self.chunk_max_tokens: int = int(os.getenv("CHUNK_MAX_TOKENS", "512"))
         self.chunk_overlap_tokens: int = int(os.getenv("CHUNK_OVERLAP_TOKENS", "64"))
 
+        # API
+        self.api_host: str = os.getenv("API_HOST", "0.0.0.0")
+        self.api_port: int = int(os.getenv("API_PORT", "8000"))
+
+        # Ingest queue (raw documents from C# crawler)
+        self.raw_queue_path: Path = Path(
+            os.getenv("RAW_QUEUE_PATH", "data/raw_queue.jsonl")
+        )
+
+        # Qdrant
+        self.qdrant_url: str = os.getenv("QDRANT_URL", "http://localhost:6333")
+        self.qdrant_collection: str = os.getenv(
+            "QDRANT_COLLECTION", "canarias_patrimonio"
+        )
+
+        # Embeddings (sentence-transformers, Phase 1)
+        self.embedding_model: str = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
+
+        # Ollama (Phase 2)
+        self.ollama_url: str = os.getenv("OLLAMA_URL", "http://localhost:11434")
+        self.ollama_model: str = os.getenv(
+            "OLLAMA_MODEL", "llama3.1:8b-instruct-q4_K_M"
+        )
+
+        # Anthropic (Phase 2, opcional)
+        self.anthropic_api_key: str = os.getenv("ANTHROPIC_API_KEY", "")
+
         # Logging
         self.log_level: str = os.getenv("LOG_LEVEL", "INFO")
 
