@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from datetime import datetime, timezone
@@ -14,6 +15,7 @@ from api.schemas import (
     QueryResponse,
 )
 from config.settings import Settings
+from pipeline.query import run_query
 from storage.models import generate_content_hash, generate_doc_id
 
 logger = logging.getLogger(__name__)
@@ -59,9 +61,10 @@ async def ingest_document(req: IngestDocumentRequest) -> IngestDocumentResponse:
 
 
 @router.post("/query", response_model=QueryResponse)
-async def query(_req: QueryRequest) -> JSONResponse:
-    # Phase 3: retrieval + reranking + generation
-    return JSONResponse(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        content={"detail": "Not implemented — Phase 3"},
+async def query(req: QueryRequest) -> QueryResponse:
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(
+        None,
+        lambda: run_query(req.question, top_k=req.top_k, source_filter=req.source_filter),
     )
+    return result
